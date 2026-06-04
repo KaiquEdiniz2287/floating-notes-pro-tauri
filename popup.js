@@ -323,6 +323,14 @@ const quill = new window.Quill("#editor", {
   },
 });
 
+const spaceBindings = quill.keyboard.bindings[" "];
+
+if (spaceBindings) {
+  quill.keyboard.bindings[" "] = spaceBindings.filter((binding) => {
+    return !(binding.format && (binding.format.list || binding.prefix));
+  });
+}
+
 quill.root.setAttribute("spellcheck", "false");
 
 // REMOVE PICKERS ORIGINAIS DO QUILL

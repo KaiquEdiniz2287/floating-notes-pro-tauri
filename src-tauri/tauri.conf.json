@@ -1,17 +1,23 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "floating-notes-pro-tauri",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "productName": "Floating Notes Pro",
+  "version": "1.4.1",
+  "identifier": "com.kaio.floatingnotes",
   "build": {
-    "frontendDist": ".."
+    "frontendDist": "../dist",
+    "beforeDevCommand": "node copy-frontend.js",
+    "beforeBuildCommand": "node copy-frontend.js"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
-        "title": "floating-notes-pro",
-        "width": 800,
-        "height": 600,
+        "label": "main",
+        "title": "Floating Notes Pro",
+        "width": 1100,
+        "height": 750,
+        "minWidth": 700,
+        "minHeight": 500,
         "resizable": true,
         "fullscreen": false
       }
@@ -29,9 +35,6 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ],
-    "android": {
-      "debugApplicationIdSuffix": ".debug"
-    }
+    ]
   }
 }

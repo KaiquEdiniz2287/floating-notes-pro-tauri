@@ -13,7 +13,7 @@ let lastDownloadedPdf = null;
 openPdfBtn.addEventListener("click", async () => {
   if (!lastDownloadedPdf) return;
 
-  await window.electronAPI.openFile(lastDownloadedPdf);
+  await window.appAPI.openFile(lastDownloadedPdf);
 });
 
 let state = {
@@ -720,7 +720,7 @@ function transformText(type) {
 
 async function loadState() {
   try {
-    const saved = await window.electronAPI.loadData();
+    const saved = await window.appAPI.loadData();
 
     if (saved) {
       state = {
@@ -784,6 +784,8 @@ async function loadState() {
   quill.focus();
 
   updateColorUI();
+
+  initTabsSortable();
 }
 
 // ==========================
@@ -792,7 +794,7 @@ async function loadState() {
 
 async function saveState() {
   try {
-    await window.electronAPI.saveData(state);
+    await window.appAPI.saveData(state);
   } catch (err) {
     console.error(err);
   }
@@ -1201,7 +1203,7 @@ closeExport.onclick = () => {
 exportTxtBtn.onclick = async () => {
   const current = state.tabs[state.currentTab];
   const text = quill.getText();
-  const savedPath = await window.electronAPI.saveTxt({
+  const savedPath = await window.appAPI.saveTxt({
     filename: `${current.title}.txt`,
     content: text,
   });
@@ -1396,7 +1398,7 @@ exportPdfBtn.onclick = () => {
     .then(async (pdfBlob) => {
       const arrayBuffer = await pdfBlob.arrayBuffer();
 
-      const savedPath = await window.electronAPI.savePdf({
+      const savedPath = await window.appAPI.savePdf({
         filename: `${current.title}.pdf`,
         data: Array.from(new Uint8Array(arrayBuffer)),
       });
@@ -1517,7 +1519,7 @@ function initTabsSortable() {
     chosenClass: "sortable-chosen",
     dragClass: "dragging-tab",
 
-    forceFallback: false,
+    forceFallback: true,
     fallbackTolerance: 3,
 
     onStart: () => {
@@ -1789,7 +1791,7 @@ setInterval(async () => {
 // =====================================
 
 async function updateAppTitle() {
-  const version = await window.electronAPI.getVersion();
+  const version = await window.appAPI.getVersion();
 
   document.title = `Notas Independente - v${version}`;
 }
@@ -1807,18 +1809,18 @@ const updateProgressBar = document.getElementById("update-progress-bar");
 const updateActions = document.getElementById("update-actions");
 const updateIcon = document.getElementById("update-icon");
 
-window.electronAPI.onUpdateAvailable((version) => {
+/* window.appAPI.onUpdateAvailable((version) => {
   updateTitle.textContent = `Nova versão v${version} disponível`;
   updateSubtitle.textContent = "Baixando atualização...";
   updateOverlay.classList.remove("hidden");
 });
 
-window.electronAPI.onUpdateProgress((percent) => {
+window.appAPI.onUpdateProgress((percent) => {
   updateProgressBar.style.width = percent + "%";
   updatePercent.textContent = percent + "%";
 });
 
-window.electronAPI.onUpdateDownloaded(() => {
+window.appAPI.onUpdateDownloaded(() => {
   updateIcon.innerHTML =
     '<i class="fa-solid fa-check-to-slot" style="color: rgb(0, 255, 0);"></i>';
   updateTitle.textContent = "Atualização pronta!";
@@ -1829,8 +1831,8 @@ window.electronAPI.onUpdateDownloaded(() => {
 });
 
 document.getElementById("update-restart-btn").addEventListener("click", () => {
-  window.electronAPI.restartApp();
-});
+  window.appAPI.restartApp();
+}); */
 
 document.getElementById("update-later-btn").addEventListener("click", () => {
   updateOverlay.classList.add("hidden");
@@ -2041,7 +2043,7 @@ function customConfirm(message, title = "Confirmação") {
 // GLOBAL SHORTCUT -> NEW TAB
 // ===================================
 
-window.electronAPI.onNewTabShortcut(() => {
+window.appAPI?.onNewTabShortcut(() => {
   addTabBtn.click();
 });
 
@@ -2053,4 +2055,3 @@ loadState();
 updateColorUI();
 setupCustomColorPickers();
 initResponsiveToolbar();
-initTabsSortable();

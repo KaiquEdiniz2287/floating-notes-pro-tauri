@@ -1,57 +1,18 @@
 {
   "name": "floating-notes-pro",
-  "version": "1.4.1",
-  "description": "Floating Notes Desktop",
+  "version": "1.4.2",
+  "description": "Floating Notes Desktop (Tauri)",
   "author": "Kaio H. Diniz",
-  "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder",
-    "kill": "taskkill /F /IM electron.exe || exit /B 0",
-    "release": "npm run kill && electron-builder --publish always"
-  },
-  "build": {
-    "appId": "com.kaio.floatingnotes",
-    "productName": "Floating Notes Pro",
-    "artifactName": "Floating-Notes-Pro-Setup-${version}.${ext}",
-    "files": [
-      "**/*"
-    ],
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "KaiquEdiniz2287",
-        "repo": "floating-notes-pro"
-      }
-    ],
-    "directories": {
-      "output": "dist"
-    },
-    "win": {
-      "target": "nsis",
-      "icon": "assets/icon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": false,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "installerSidebar": "assets/Sidebar.bmp",
-      "installerHeader": "assets/header.bmp",
-      "installerIcon": "assets/icon-instal.ico",
-      "uninstallerIcon": "assets/icon-unistal.ico",
-      "runAfterFinish": true,
-      "shortcutName": "Floating Notes Pro"
-    },
-    "forceCodeSigning": false
+    "start": "tauri dev",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "tauri": "tauri"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.11.2",
-    "electron": "^42.1.0",
-    "electron-builder": "^26.8.1"
+    "@tauri-apps/cli": "^2.11.2"
   },
   "dependencies": {
-    "electron-store": "^8.2.0",
-    "electron-updater": "^6.8.3"
+    "@tauri-apps/api": "^2.11.0"
   }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "2.0.1"
+version = "2.0.2"
 description = "A Tauri App"
 authors = ["you"]
 license = ""
@@ -24,6 +24,7 @@ log = "0.4"
 tauri = { version = "2.11.2", features = [] }
 tauri-plugin-log = "2"
 tauri-plugin-global-shortcut = "2"
+tauri-plugin-window-state = "2"
 rfd = "0.15"
 open = "5.3"
 

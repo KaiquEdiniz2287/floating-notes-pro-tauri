@@ -2152,6 +2152,11 @@ window.appAPI?.onNewTabShortcut(() => {
 // INIT
 // ==========================
 
+const appVersionEl = document.getElementById("app-version");
+if (appVersionEl && window.APP_VERSION) {
+  appVersionEl.textContent = `v${window.APP_VERSION}`;
+}
+
 loadState();
 updateColorUI();
 setupCustomColorPickers();

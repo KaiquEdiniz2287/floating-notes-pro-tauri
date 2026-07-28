@@ -1135,10 +1135,8 @@ addTabBtn.addEventListener("click", async () => {
 // QUILL AUTOSAVE
 // ==========================
 
-quill.on("text-change", async () => {
-  saveCurrentTab();
-
-  await saveState();
+quill.on("text-change", () => {
+  scheduleSaveState();
 });
 
 // ==========================
@@ -1171,11 +1169,30 @@ themeBtn.addEventListener("click", async () => {
 // SEARCH
 // ==========================
 
+// ==========================
+// SEARCH (TÍTULO E CONTEÚDO)
+// ==========================
+
 searchEl.addEventListener("input", () => {
-  const value = searchEl.value.toLowerCase();
+  const value = searchEl.value.toLowerCase().trim();
 
   document.querySelectorAll(".tab").forEach((tab, index) => {
-    const visible = state.tabs[index].title.toLowerCase().includes(value);
+    const tabData = state.tabs[index];
+    if (!tabData) return;
+
+    const titleMatch = tabData.title.toLowerCase().includes(value);
+
+    // Busca no texto dos ops do Quill
+    let contentText = "";
+    if (tabData.content && Array.isArray(tabData.content.ops)) {
+      contentText = tabData.content.ops
+        .map((op) => (typeof op.insert === "string" ? op.insert : ""))
+        .join(" ")
+        .toLowerCase();
+    }
+
+    const contentMatch = contentText.includes(value);
+    const visible = !value || titleMatch || contentMatch;
 
     tab.style.display = visible ? "flex" : "none";
   });
@@ -1198,6 +1215,8 @@ closeExport.onclick = () => {
   exportPopup.classList.add("hidden");
 };
 
+const exportMdBtn = document.getElementById("export-md");
+
 // TXT
 
 exportTxtBtn.onclick = async () => {
@@ -1216,6 +1235,27 @@ exportTxtBtn.onclick = async () => {
   }, 5000);
   exportPopup.classList.add("hidden");
 };
+
+// MARKDOWN (.md)
+
+if (exportMdBtn) {
+  exportMdBtn.onclick = async () => {
+    const current = state.tabs[state.currentTab];
+    const text = quill.getText();
+    const savedPath = await window.appAPI.saveMd({
+      filename: `${current.title}.md`,
+      content: text,
+    });
+    if (!savedPath) return;
+    lastDownloadedPdf = savedPath;
+    downloadToast.classList.remove("hidden");
+    clearTimeout(downloadToast.hideTimer);
+    downloadToast.hideTimer = setTimeout(() => {
+      downloadToast.classList.add("hidden");
+    }, 5000);
+    exportPopup.classList.add("hidden");
+  };
+}
 
 // =====================================
 // PDF CORRIGIDO
@@ -1597,9 +1637,11 @@ document.addEventListener("keydown", (e) => {
 
 // FECHAR
 
-closeReplace.onclick = () => {
+closeReplace.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
   replacePopup.classList.add("hidden");
-};
+});
 
 // =====================================
 // FIND NEXT
@@ -1722,6 +1764,10 @@ let offsetY = 0;
 // DRAG START
 
 dragHandle.addEventListener("mousedown", (e) => {
+  if (e.target.closest("button") || e.target.id === "close-replace") {
+    return;
+  }
+
   isDragging = true;
 
   const rect = popup.getBoundingClientRect();
@@ -1777,14 +1823,18 @@ document.addEventListener("mouseup", async () => {
   // SAVE POSITION
 });
 // ==========================
-// AUTO SAVE
+// DEBOUNCED AUTO SAVE (Substitui o setInterval(1000) contínuo)
 // ==========================
 
-setInterval(async () => {
-  saveCurrentTab();
+let saveDebounceTimer = null;
 
-  await saveState();
-}, 1000);
+function scheduleSaveState() {
+  clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = setTimeout(async () => {
+    saveCurrentTab();
+    await saveState();
+  }, 300);
+}
 
 // =====================================
 // APP VERSION TITLE
@@ -2040,6 +2090,57 @@ function customConfirm(message, title = "Confirmação") {
 }
 
 // =====================================
+// ALWAYS ON TOP (PIN BUTTON)
+// =====================================
+
+const pinBtn = document.getElementById("pin-btn");
+
+async function updatePinButtonUI(forcedState = null) {
+  if (!pinBtn) return;
+  const isOnTop =
+    typeof forcedState === "boolean"
+      ? forcedState
+      : await window.appAPI?.isAlwaysOnTop();
+
+  if (isOnTop) {
+    pinBtn.classList.add("active");
+    pinBtn.title = "Desafixar do topo (Ctrl+Alt+P)";
+  } else {
+    pinBtn.classList.remove("active");
+    pinBtn.title = "Fixar no topo (Ctrl+Alt+P)";
+  }
+}
+
+if (pinBtn) {
+  pinBtn.addEventListener("click", async () => {
+    const newState = await window.appAPI?.toggleAlwaysOnTop();
+    updatePinButtonUI(newState);
+  });
+}
+
+window.appAPI?.onAlwaysOnTopChanged((isOnTop) => {
+  updatePinButtonUI(isOnTop);
+});
+
+// =====================================
+// TABS WHEEL SCROLL (ROLAGEM HORIZONTAL SUAVE)
+// =====================================
+
+const tabsWrapperEl = document.getElementById("tabs-wrapper");
+if (tabsWrapperEl) {
+  tabsWrapperEl.addEventListener(
+    "wheel",
+    (e) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        tabsWrapperEl.scrollLeft += e.deltaY * 0.8;
+      }
+    },
+    { passive: false }
+  );
+}
+
+// =====================================
 // GLOBAL SHORTCUT -> NEW TAB
 // ===================================
 
@@ -2055,3 +2156,4 @@ loadState();
 updateColorUI();
 setupCustomColorPickers();
 initResponsiveToolbar();
+updatePinButtonUI();

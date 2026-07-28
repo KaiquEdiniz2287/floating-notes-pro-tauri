@@ -84,10 +84,41 @@
       return null;
     },
 
+    async saveMd({ filename, content }) {
+      const invoke = getInvoke();
+      if (invoke) {
+        return await invoke("save_md", { filename, content });
+      }
+      return null;
+    },
+
+    async toggleAlwaysOnTop() {
+      const invoke = getInvoke();
+      if (invoke) {
+        return await invoke("toggle_always_on_top");
+      }
+      return false;
+    },
+
+    async isAlwaysOnTop() {
+      const invoke = getInvoke();
+      if (invoke) {
+        return await invoke("is_always_on_top");
+      }
+      return false;
+    },
+
     onNewTabShortcut(callback) {
       const listen = getListen();
       if (listen) {
         listen("shortcut-new-tab", () => callback());
+      }
+    },
+
+    onAlwaysOnTopChanged(callback) {
+      const listen = getListen();
+      if (listen) {
+        listen("always-on-top-changed", (event) => callback(event.payload));
       }
     },
   };

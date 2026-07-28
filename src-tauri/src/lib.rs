@@ -81,6 +81,42 @@ fn get_data_file(app: &tauri::AppHandle) -> PathBuf {
     path
 }
 
+#[tauri::command]
+fn save_md(filename: String, content: String) -> Result<Option<String>, String> {
+    let res = rfd::FileDialog::new()
+        .add_filter("Markdown", &["md"])
+        .set_file_name(&filename)
+        .save_file();
+
+    if let Some(path) = res {
+        fs::write(&path, content).map_err(|e| e.to_string())?;
+        Ok(Some(path.to_string_lossy().to_string()))
+    } else {
+        Ok(None)
+    }
+}
+
+#[tauri::command]
+fn toggle_always_on_top(app: tauri::AppHandle) -> Result<bool, String> {
+    if let Some(window) = app.get_webview_window("main") {
+        let current = window.is_always_on_top().unwrap_or(false);
+        let next = !current;
+        window.set_always_on_top(next).map_err(|e| e.to_string())?;
+        Ok(next)
+    } else {
+        Err("Janela principal não encontrada".into())
+    }
+}
+
+#[tauri::command]
+fn is_always_on_top(app: tauri::AppHandle) -> Result<bool, String> {
+    if let Some(window) = app.get_webview_window("main") {
+        Ok(window.is_always_on_top().unwrap_or(false))
+    } else {
+        Ok(false)
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -92,6 +128,11 @@ pub fn run() {
                         .level(log::LevelFilter::Info)
                         .build(),
                 )?;
+            }
+
+            // Garante que a janela abre com always_on_top = false (desativado por padrão)
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.set_always_on_top(false);
             }
 
             // Registrar atalhos globais
@@ -124,7 +165,9 @@ pub fn run() {
                 if event.state() == ShortcutState::Pressed {
                     if let Some(window) = app_handle.get_webview_window("main") {
                         if let Ok(is_on_top) = window.is_always_on_top() {
-                            let _ = window.set_always_on_top(!is_on_top);
+                            let next = !is_on_top;
+                            let _ = window.set_always_on_top(next);
+                            let _ = window.emit("always-on-top-changed", next);
                         }
                     }
                 }
@@ -138,7 +181,10 @@ pub fn run() {
             get_version,
             save_txt,
             save_pdf,
-            open_file
+            save_md,
+            open_file,
+            toggle_always_on_top,
+            is_always_on_top
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

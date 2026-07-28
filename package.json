@@ -1,6 +1,6 @@
 {
-  "name": "floating-notes-pro",
-  "version": "2.0.0",
+  "name": "floating-notes-pro-tauri",
+  "version": "2.0.1",
   "description": "Floating Notes Desktop (Tauri)",
   "author": "Kaio H. Diniz",
   "scripts": {
@@ -13,6 +13,7 @@
     "@tauri-apps/cli": "^2.11.2"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.11.0"
+    "@tauri-apps/api": "^2.11.0",
+    "@tauri-apps/plugin-updater": "^2.10.1"
   }
 }

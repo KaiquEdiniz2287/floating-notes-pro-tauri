@@ -1843,7 +1843,7 @@ function scheduleSaveState() {
 async function updateAppTitle() {
   const version = await window.appAPI.getVersion();
 
-  document.title = `Notas Independente - v${version}`;
+  document.title = `Floating Notes Pro - v${version}`;
 }
 
 updateAppTitle();

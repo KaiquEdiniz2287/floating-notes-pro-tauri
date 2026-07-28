@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Floating Notes Pro",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "identifier": "com.kaio.floatingnotes",
   "build": {
     "frontendDist": "../dist",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Floating Notes Pro",
+        "title": "Floating Notes Pro - v2.0.1",
         "width": 1100,
         "height": 750,
         "minWidth": 700,
@@ -26,6 +26,14 @@
       "csp": null
     }
   },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI3NkNGRjcyMjhGQjNDQTEKUldTaFBQc29jdjlzdHp0NVFJdU5oOXZVTlpGTVhqTXdnTUdCaDZhb2tzMG14dzQ4TG5wdER2ZHoK",
+      "endpoints": [
+        "https://github.com/KaiquEdiniz2287/floating-notes-pro-tauri/releases/latest/download/latest.json"
+      ]
+    }
+  },
   "bundle": {
     "active": true,
     "targets": "all",
@@ -35,6 +43,14 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "../assets/icon-instal.ico",
+        "headerImage": "../assets/header.bmp",
+        "sidebarImage": "../assets/Sidebar.bmp",
+        "displayLanguageSelector": false
+      }
+    }
   }
 }

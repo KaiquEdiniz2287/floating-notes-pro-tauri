@@ -3,4 +3,5 @@ dist/
 release/
 out/
 src-tauri/target/
-*.tauriignore
+*.tauriignore
+src-tauri/tauri.key

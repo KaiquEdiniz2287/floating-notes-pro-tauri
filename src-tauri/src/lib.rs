@@ -120,6 +120,7 @@ fn is_always_on_top(app: tauri::AppHandle) -> Result<bool, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .setup(|app| {
             if cfg!(debug_assertions) {
@@ -141,37 +142,43 @@ pub fn run() {
             let ctrl_alt_p = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyP);
 
             let app_handle = app.handle().clone();
-            let _ = app.global_shortcut().on_shortcut(ctrl_alt_n, move |_app, _shortcut, event| {
-                if event.state() == ShortcutState::Pressed {
-                    if let Some(window) = app_handle.get_webview_window("main") {
-                        let _ = window.unminimize();
-                        let _ = window.show();
-                        let _ = window.set_focus();
-                    }
-                }
-            });
-
-            let app_handle = app.handle().clone();
-            let _ = app.global_shortcut().on_shortcut(ctrl_alt_t, move |_app, _shortcut, event| {
-                if event.state() == ShortcutState::Pressed {
-                    if let Some(window) = app_handle.get_webview_window("main") {
-                        let _ = window.emit("shortcut-new-tab", ());
-                    }
-                }
-            });
-
-            let app_handle = app.handle().clone();
-            let _ = app.global_shortcut().on_shortcut(ctrl_alt_p, move |_app, _shortcut, event| {
-                if event.state() == ShortcutState::Pressed {
-                    if let Some(window) = app_handle.get_webview_window("main") {
-                        if let Ok(is_on_top) = window.is_always_on_top() {
-                            let next = !is_on_top;
-                            let _ = window.set_always_on_top(next);
-                            let _ = window.emit("always-on-top-changed", next);
+            let _ = app
+                .global_shortcut()
+                .on_shortcut(ctrl_alt_n, move |_app, _shortcut, event| {
+                    if event.state() == ShortcutState::Pressed {
+                        if let Some(window) = app_handle.get_webview_window("main") {
+                            let _ = window.unminimize();
+                            let _ = window.show();
+                            let _ = window.set_focus();
                         }
                     }
-                }
-            });
+                });
+
+            let app_handle = app.handle().clone();
+            let _ = app
+                .global_shortcut()
+                .on_shortcut(ctrl_alt_t, move |_app, _shortcut, event| {
+                    if event.state() == ShortcutState::Pressed {
+                        if let Some(window) = app_handle.get_webview_window("main") {
+                            let _ = window.emit("shortcut-new-tab", ());
+                        }
+                    }
+                });
+
+            let app_handle = app.handle().clone();
+            let _ = app
+                .global_shortcut()
+                .on_shortcut(ctrl_alt_p, move |_app, _shortcut, event| {
+                    if event.state() == ShortcutState::Pressed {
+                        if let Some(window) = app_handle.get_webview_window("main") {
+                            if let Ok(is_on_top) = window.is_always_on_top() {
+                                let next = !is_on_top;
+                                let _ = window.set_always_on_top(next);
+                                let _ = window.emit("always-on-top-changed", next);
+                            }
+                        }
+                    }
+                });
 
             Ok(())
         })

@@ -1859,34 +1859,59 @@ const updateProgressBar = document.getElementById("update-progress-bar");
 const updateActions = document.getElementById("update-actions");
 const updateIcon = document.getElementById("update-icon");
 
-/* window.appAPI.onUpdateAvailable((version) => {
-  updateTitle.textContent = `Nova versão v${version} disponível`;
-  updateSubtitle.textContent = "Baixando atualização...";
-  updateOverlay.classList.remove("hidden");
+const updateProgressWrap = document.getElementById("update-progress-wrap");
+
+window.appAPI.onUpdateAvailable((version) => {
+  if (updateTitle) updateTitle.textContent = `Nova versão v${version} disponível`;
+  if (updateSubtitle) updateSubtitle.textContent = "Baixando atualização...";
+  if (updateProgressWrap) updateProgressWrap.classList.remove("hidden");
+  if (updateActions) updateActions.classList.add("hidden");
+  if (updateOverlay) updateOverlay.classList.remove("hidden");
 });
 
 window.appAPI.onUpdateProgress((percent) => {
-  updateProgressBar.style.width = percent + "%";
-  updatePercent.textContent = percent + "%";
+  if (updateProgressBar) updateProgressBar.style.width = percent + "%";
+  if (updatePercent) updatePercent.textContent = percent + "%";
 });
 
 window.appAPI.onUpdateDownloaded(() => {
-  updateIcon.innerHTML =
-    '<i class="fa-solid fa-check-to-slot" style="color: rgb(0, 255, 0);"></i>';
-  updateTitle.textContent = "Atualização pronta!";
-  updateSubtitle.textContent = "";
-  updatePercent.textContent = "";
-  document.getElementById("update-progress-wrap").classList.add("hidden");
-  updateActions.classList.remove("hidden");
+  if (updateIcon) {
+    updateIcon.innerHTML =
+      '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 48px;"></i>';
+  }
+  if (updateTitle) updateTitle.textContent = "Atualização pronta!";
+  if (updateSubtitle) updateSubtitle.textContent = "Clique em reiniciar para aplicar as mudanças.";
+  if (updatePercent) updatePercent.textContent = "";
+  if (updateProgressWrap) updateProgressWrap.classList.add("hidden");
+  if (updateActions) updateActions.classList.remove("hidden");
 });
 
-document.getElementById("update-restart-btn").addEventListener("click", () => {
-  window.appAPI.restartApp();
-}); */
-
-document.getElementById("update-later-btn").addEventListener("click", () => {
-  updateOverlay.classList.add("hidden");
+window.appAPI.onUpdateError((err) => {
+  console.warn("Aviso de atualização:", err);
 });
+
+const updateRestartBtn = document.getElementById("update-restart-btn");
+if (updateRestartBtn) {
+  updateRestartBtn.addEventListener("click", () => {
+    window.appAPI.restartApp();
+  });
+}
+
+const updateLaterBtn = document.getElementById("update-later-btn");
+if (updateLaterBtn) {
+  updateLaterBtn.addEventListener("click", () => {
+    if (updateOverlay) updateOverlay.classList.add("hidden");
+  });
+}
+
+// Iniciar checagem automática de atualização após 3 segundos
+setTimeout(() => {
+  if (window.appAPI && window.appAPI.checkForUpdates) {
+    window.appAPI.checkForUpdates().catch((err) => {
+      console.log("Check for updates status:", err);
+    });
+  }
+}, 3000);
 
 // =====================================
 // QUILL TOOLBAR RESPONSIVE

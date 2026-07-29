@@ -117,6 +117,67 @@ fn is_always_on_top(app: tauri::AppHandle) -> Result<bool, String> {
     }
 }
 
+#[tauri::command]
+async fn check_for_updates(app: tauri::AppHandle) -> Result<bool, String> {
+    use tauri_plugin_updater::UpdaterExt;
+
+    let handle = app.clone();
+    let updater = match handle.updater() {
+        Ok(u) => u,
+        Err(e) => return Err(e.to_string()),
+    };
+
+    match updater.check().await {
+        Ok(Some(update)) => {
+            let version = update.version.clone();
+            let _ = handle.emit("update-available", &version);
+
+            let handle_clone = handle.clone();
+            let mut downloaded: u64 = 0;
+
+            let download_res = update
+                .download_and_install(
+                    move |chunk_length, content_length| {
+                        downloaded += chunk_length as u64;
+                        let percent = if let Some(total) = content_length {
+                            if total > 0 {
+                                ((downloaded as f64 / total as f64) * 100.0) as u32
+                            } else {
+                                0
+                            }
+                        } else {
+                            0
+                        };
+                        let _ = handle_clone.emit("update-progress", percent);
+                    },
+                    || {},
+                )
+                .await;
+
+            match download_res {
+                Ok(_) => {
+                    let _ = handle.emit("update-downloaded", ());
+                    Ok(true)
+                }
+                Err(e) => {
+                    let _ = handle.emit("update-error", e.to_string());
+                    Err(e.to_string())
+                }
+            }
+        }
+        Ok(None) => Ok(false),
+        Err(e) => {
+            let _ = handle.emit("update-error", e.to_string());
+            Err(e.to_string())
+        }
+    }
+}
+
+#[tauri::command]
+fn restart_app(app: tauri::AppHandle) {
+    app.restart();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -192,7 +253,9 @@ pub fn run() {
             save_md,
             open_file,
             toggle_always_on_top,
-            is_always_on_top
+            is_always_on_top,
+            check_for_updates,
+            restart_app
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

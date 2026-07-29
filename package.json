@@ -7,6 +7,7 @@
     "start": "tauri dev",
     "dev": "tauri dev",
     "build": "tauri build",
+    "release": "node build-release.js",
     "tauri": "tauri",
     "set-version": "node set-version.js"
   },

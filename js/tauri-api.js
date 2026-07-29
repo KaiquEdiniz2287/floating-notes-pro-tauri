@@ -121,5 +121,48 @@
         listen("always-on-top-changed", (event) => callback(event.payload));
       }
     },
+
+    onUpdateAvailable(callback) {
+      const listen = getListen();
+      if (listen) {
+        listen("update-available", (event) => callback(event.payload));
+      }
+    },
+
+    onUpdateProgress(callback) {
+      const listen = getListen();
+      if (listen) {
+        listen("update-progress", (event) => callback(event.payload));
+      }
+    },
+
+    onUpdateDownloaded(callback) {
+      const listen = getListen();
+      if (listen) {
+        listen("update-downloaded", () => callback());
+      }
+    },
+
+    onUpdateError(callback) {
+      const listen = getListen();
+      if (listen) {
+        listen("update-error", (event) => callback(event.payload));
+      }
+    },
+
+    async checkForUpdates() {
+      const invoke = getInvoke();
+      if (invoke) {
+        return await invoke("check_for_updates");
+      }
+      return false;
+    },
+
+    async restartApp() {
+      const invoke = getInvoke();
+      if (invoke) {
+        return await invoke("restart_app");
+      }
+    },
   };
 })();

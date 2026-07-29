@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use serde_json::Value;
 use tauri::{Emitter, Manager};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+use tauri_plugin_window_state::{StateFlags, WindowExt};
 
 #[tauri::command]
 fn save_data(app: tauri::AppHandle, data: Value) -> Result<(), String> {
@@ -193,9 +194,13 @@ pub fn run() {
                 )?;
             }
 
-            // Garante que a janela abre com always_on_top = false (desativado por padrão)
+            // Restaurar posição/tamanho da janela ANTES de exibi-la, eliminando o "flash"
+            // O plugin restaura posição; só depois mostramos a janela
             if let Some(window) = app.get_webview_window("main") {
+                let _ = window.restore_state(StateFlags::all());
                 let _ = window.set_always_on_top(false);
+                let _ = window.show();
+                let _ = window.set_focus();
             }
 
             // Registrar atalhos globais

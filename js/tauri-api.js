@@ -60,6 +60,14 @@
       return "1.4.1";
     },
 
+    async setWindowTitle(title) {
+      const invoke = getInvoke();
+      if (invoke) {
+        return await invoke("set_window_title", { title });
+      }
+      document.title = title;
+    },
+
     async saveTxt({ filename, content }) {
       const invoke = getInvoke();
       if (invoke) {

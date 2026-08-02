@@ -242,7 +242,7 @@ button {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  width: 110px;
+  width: 60px;
   color: #f8fafc;
   font-family: inherit;
   font-size: 12px;
@@ -253,7 +253,7 @@ button {
   outline: none;
   border-color: #3b82f6;
   background: rgba(255, 255, 255, 0.08);
-  width: 140px;
+  width: 110px;
 }
 
 .light #search {
@@ -861,9 +861,134 @@ button {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+.color-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px 8px 2px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: move;
+  user-select: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.light .color-popup-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+  color: #4b5563;
+}
+
+.color-popup-close {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  opacity: 0.7;
+  transition: all 0.15s ease;
+}
+
+.color-popup-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ef4444;
+}
+
+.light .color-popup-close:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #ef4444;
+}
+
 .light .color-popup {
   background: white;
   border-color: #d1d5db;
+}
+
+/* CUSTOM COLOR POPUP MODAL */
+.custom-color-popup {
+  position: fixed;
+  width: 220px;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  padding: 10px;
+  z-index: 100000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.light .custom-color-popup {
+  background: white;
+  border-color: #d1d5db;
+}
+
+.custom-color-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.custom-color-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-color-preview {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.light .custom-color-preview {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.custom-color-hex {
+  flex: 1;
+  background: #111827;
+  border: 1px solid #374151;
+  color: white;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.light .custom-color-hex {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.custom-color-native-input {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.apply-custom-color-btn {
+  width: 100%;
+  padding: 8px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.apply-custom-color-btn:hover {
+  background: #2563eb;
 }
 
 .color-section {

@@ -3,7 +3,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Floating Notes Pro - v2.0.3</title>
+    <title>Floating Notes Pro - v2.0.4</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -96,6 +96,13 @@
     <!-- COLOR POPUP -->
 
     <div id="color-popup" class="color-popup hidden">
+      <div class="color-popup-header" id="color-popup-drag">
+        <span style="display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-palette" style="font-size: 11px;"></i> Paleta de Cores
+        </span>
+        <span class="color-popup-close" id="close-color-popup" title="Fechar">✕</span>
+      </div>
+
       <div class="color-section">
         <button class="color-clear" data-action="clear">
           Sem preenchimento
@@ -109,8 +116,28 @@
       <button id="custom-color-btn" class="custom-color-btn">
         🎨 Cor personalizada...
       </button>
+    </div>
 
-      <input type="color" id="hidden-color-picker" hidden />
+    <!-- CUSTOM COLOR POPUP -->
+    <div id="custom-color-popup" class="custom-color-popup hidden">
+      <div class="color-popup-header" id="custom-color-drag">
+        <span style="display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-palette" style="font-size: 11px;"></i> Cor Personalizada
+        </span>
+        <span class="color-popup-close" id="close-custom-color-popup" title="Fechar">✕</span>
+      </div>
+
+      <div class="custom-color-body">
+        <div class="custom-color-preview-row">
+          <div id="custom-color-preview" class="custom-color-preview" style="background: #3b82f6;" title="Clique para escolher a cor"></div>
+          <input type="text" id="custom-color-hex" class="custom-color-hex" value="#3B82F6" placeholder="#000000" maxlength="7" spellcheck="false" />
+          <input type="color" id="hidden-color-picker" class="custom-color-native-input" value="#3b82f6" />
+        </div>
+
+        <div class="custom-color-actions">
+          <button id="apply-custom-color-btn" class="apply-custom-color-btn">Aplicar Cor</button>
+        </div>
+      </div>
     </div>
 
     <!-- UPDATE OVERLAY -->

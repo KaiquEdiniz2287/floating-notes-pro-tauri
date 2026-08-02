@@ -38,6 +38,13 @@ fn get_version(app: tauri::AppHandle) -> String {
 }
 
 #[tauri::command]
+fn set_window_title(app: tauri::AppHandle, title: String) {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.set_title(&title);
+    }
+}
+
+#[tauri::command]
 fn save_txt(filename: String, content: String) -> Result<Option<String>, String> {
     let res = rfd::FileDialog::new()
         .add_filter("Texto", &["txt"])
@@ -185,6 +192,17 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(
+            tauri_plugin_single_instance::init(|app, _args, _cwd| {
+                // Se o usuário tentar abrir uma segunda instância,
+                // apenas traz a janela existente para o foco
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.unminimize();
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                }
+            })
+        )
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -253,6 +271,7 @@ pub fn run() {
             save_data,
             load_data,
             get_version,
+            set_window_title,
             save_txt,
             save_pdf,
             save_md,

@@ -599,6 +599,57 @@ function setupCustomColorPickers() {
     e.stopPropagation();
   });
 
+  let sessionColorPopupPos = null;
+  let isDraggingColorPopup = false;
+  let colorPopupOffsetX = 0;
+  let colorPopupOffsetY = 0;
+
+  const colorPopupDragHandle = document.getElementById("color-popup-drag");
+  const closeColorPopupBtn = document.getElementById("close-color-popup");
+
+  if (colorPopupDragHandle) {
+    colorPopupDragHandle.addEventListener("mousedown", (e) => {
+      if (e.target.closest("#close-color-popup")) return;
+      isDraggingColorPopup = true;
+      const rect = colorPopup.getBoundingClientRect();
+      colorPopupOffsetX = e.clientX - rect.left;
+      colorPopupOffsetY = e.clientY - rect.top;
+    });
+  }
+
+  if (closeColorPopupBtn) {
+    closeColorPopupBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      colorPopup.classList.add("hidden");
+    });
+  }
+
+  document.addEventListener("mousemove", (e) => {
+    if (!isDraggingColorPopup) return;
+
+    const width = colorPopup.offsetWidth || 240;
+    const height = colorPopup.offsetHeight || 300;
+    const MARGIN = 8;
+
+    let left = e.clientX - colorPopupOffsetX;
+    let top = e.clientY - colorPopupOffsetY;
+
+    left = Math.max(MARGIN, Math.min(window.innerWidth - width - MARGIN, left));
+    top = Math.max(MARGIN, Math.min(window.innerHeight - height - MARGIN, top));
+
+    colorPopup.style.left = left + "px";
+    colorPopup.style.top = top + "px";
+
+    sessionColorPopupPos = { left, top };
+  });
+
+  document.addEventListener("mouseup", () => {
+    if (isDraggingColorPopup) {
+      isDraggingColorPopup = false;
+    }
+  });
+
   // ── BOTÃO DIREITO (seta / dropdown) ──────────────────────
   function openPopup(e, mode) {
     e.preventDefault();
@@ -607,10 +658,46 @@ function setupCustomColorPickers() {
     currentColorMode = mode;
     renderColorGrid();
     renderRecentColors();
-    const rect = e.currentTarget.getBoundingClientRect();
-    colorPopup.style.left = rect.left + "px";
-    colorPopup.style.top = rect.bottom + 8 + "px";
+
     colorPopup.classList.remove("hidden");
+
+    const popupWidth = colorPopup.offsetWidth || 240;
+    const popupHeight = colorPopup.offsetHeight || 300;
+    const MARGIN = 8;
+
+    let left, top;
+
+    // Se a posição da sessão foi definida pelo usuário ao arrastar, usa essa posição!
+    if (sessionColorPopupPos) {
+      left = sessionColorPopupPos.left;
+      top = sessionColorPopupPos.top;
+
+      left = Math.max(MARGIN, Math.min(window.innerWidth - popupWidth - MARGIN, left));
+      top = Math.max(MARGIN, Math.min(window.innerHeight - popupHeight - MARGIN, top));
+    } else {
+      // Posição estratégica padrão: alinhada ao botão de cor
+      const rect = e.currentTarget.getBoundingClientRect();
+      left = rect.left;
+      top = rect.bottom + MARGIN;
+
+      if (left + popupWidth > window.innerWidth - MARGIN) {
+        left = window.innerWidth - popupWidth - MARGIN;
+      }
+      if (left < MARGIN) {
+        left = MARGIN;
+      }
+
+      if (top + popupHeight > window.innerHeight - MARGIN) {
+        if (rect.top - popupHeight - MARGIN >= MARGIN) {
+          top = rect.top - popupHeight - MARGIN;
+        } else {
+          top = Math.max(MARGIN, window.innerHeight - popupHeight - MARGIN);
+        }
+      }
+    }
+
+    colorPopup.style.left = left + "px";
+    colorPopup.style.top = top + "px";
   }
 
   document
@@ -647,28 +734,164 @@ document.querySelector(".color-clear").addEventListener("click", () => {
 });
 
 // =====================================
-// CUSTOM COLOR
+// CUSTOM COLOR POPUP MODAL & DRAG
 // =====================================
 
-document.getElementById("custom-color-btn").addEventListener("click", () => {
-  hiddenColorPicker.click();
+const customColorPopup = document.getElementById("custom-color-popup");
+const customColorDragHandle = document.getElementById("custom-color-drag");
+const closeCustomColorBtn = document.getElementById("close-custom-color-popup");
+const customColorPreview = document.getElementById("custom-color-preview");
+const customColorHexInput = document.getElementById("custom-color-hex");
+const applyCustomColorBtn = document.getElementById("apply-custom-color-btn");
+
+let sessionCustomColorModalPos = null;
+let isDraggingCustomColorModal = false;
+let customColorModalOffsetX = 0;
+let customColorModalOffsetY = 0;
+
+if (customColorDragHandle) {
+  customColorDragHandle.addEventListener("mousedown", (e) => {
+    if (e.target.closest("#close-custom-color-popup")) return;
+    isDraggingCustomColorModal = true;
+    const rect = customColorPopup.getBoundingClientRect();
+    customColorModalOffsetX = e.clientX - rect.left;
+    customColorModalOffsetY = e.clientY - rect.top;
+  });
+}
+
+if (closeCustomColorBtn) {
+  closeCustomColorBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    customColorPopup.classList.add("hidden");
+  });
+}
+
+document.addEventListener("mousemove", (e) => {
+  if (!isDraggingCustomColorModal) return;
+
+  const width = customColorPopup.offsetWidth || 220;
+  const height = customColorPopup.offsetHeight || 140;
+  const MARGIN = 8;
+
+  let left = e.clientX - customColorModalOffsetX;
+  let top = e.clientY - customColorModalOffsetY;
+
+  left = Math.max(MARGIN, Math.min(window.innerWidth - width - MARGIN, left));
+  top = Math.max(MARGIN, Math.min(window.innerHeight - height - MARGIN, top));
+
+  customColorPopup.style.left = left + "px";
+  customColorPopup.style.top = top + "px";
+
+  sessionCustomColorModalPos = { left, top };
 });
 
+document.addEventListener("mouseup", () => {
+  if (isDraggingCustomColorModal) {
+    isDraggingCustomColorModal = false;
+  }
+});
+
+// ABRIR POPUP DE COR PERSONALIZADA
+document.getElementById("custom-color-btn").addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  customColorPopup.classList.remove("hidden");
+
+  const width = customColorPopup.offsetWidth || 220;
+  const height = customColorPopup.offsetHeight || 140;
+  const MARGIN = 8;
+
+  let left, top;
+
+  if (sessionCustomColorModalPos) {
+    left = sessionCustomColorModalPos.left;
+    top = sessionCustomColorModalPos.top;
+
+    left = Math.max(MARGIN, Math.min(window.innerWidth - width - MARGIN, left));
+    top = Math.max(MARGIN, Math.min(window.innerHeight - height - MARGIN, top));
+  } else {
+    // Posição estratégica: alinhada ao botão "Cor personalizada..."
+    const btnRect = e.currentTarget.getBoundingClientRect();
+    left = btnRect.left;
+    top = btnRect.bottom + 4;
+
+    if (left + width > window.innerWidth - MARGIN) {
+      left = window.innerWidth - width - MARGIN;
+    }
+    if (left < MARGIN) {
+      left = MARGIN;
+    }
+
+    if (top + height > window.innerHeight - MARGIN) {
+      top = Math.max(MARGIN, btnRect.top - height - 4);
+    }
+  }
+
+  customColorPopup.style.left = left + "px";
+  customColorPopup.style.top = top + "px";
+
+  // Preenche a cor atual
+  const currentColor = currentColorMode === "color" ? state.lastColor : state.lastBackground;
+  if (customColorHexInput) customColorHexInput.value = (currentColor || "#3B82F6").toUpperCase();
+  if (customColorPreview) customColorPreview.style.background = currentColor || "#3B82F6";
+  if (hiddenColorPicker) hiddenColorPicker.value = (currentColor && currentColor.startsWith("#")) ? currentColor : "#3b82f6";
+});
+
+// Sincroniza Preview / Hex ao mudar o input de cor nativo
 hiddenColorPicker.addEventListener("input", (e) => {
-  applyColor(e.target.value);
+  const val = e.target.value;
+  if (customColorHexInput) customColorHexInput.value = val.toUpperCase();
+  if (customColorPreview) customColorPreview.style.background = val;
 });
 
-// =====================================
-// CLOSE OUTSIDE
-// =====================================
+// Sincroniza Preview ao digitar no HEX
+if (customColorHexInput) {
+  customColorHexInput.addEventListener("input", (e) => {
+    let val = e.target.value.trim();
+    if (!val.startsWith("#") && val.length > 0) {
+      val = "#" + val;
+    }
+    if (/^#[0-9A-F]{6}$/i.test(val)) {
+      if (customColorPreview) customColorPreview.style.background = val;
+      if (hiddenColorPicker) hiddenColorPicker.value = val;
+    }
+  });
+}
 
+if (customColorPreview) {
+  customColorPreview.addEventListener("click", () => {
+    hiddenColorPicker.click();
+  });
+}
+
+// Botão APLICAR COR
+if (applyCustomColorBtn) {
+  applyCustomColorBtn.addEventListener("click", () => {
+    let color = customColorHexInput.value.trim();
+    if (!color.startsWith("#") && color.length > 0) {
+      color = "#" + color;
+    }
+    if (/^#[0-9A-F]{6}$/i.test(color) || /^#[0-9A-F]{3}$/i.test(color)) {
+      applyColor(color);
+      customColorPopup.classList.add("hidden");
+    }
+  });
+}
+
+// Fechar popups se clicar fora
 document.addEventListener("mousedown", (e) => {
   if (
-    !e.target.closest(".color-popup") &&
-    !e.target.closest(".ql-color") &&
-    !e.target.closest(".ql-background")
+    !e.target.closest("#color-popup") &&
+    !e.target.closest("#custom-color-popup") &&
+    !e.target.closest("#open-color-picker") &&
+    !e.target.closest("#open-bg-picker") &&
+    !e.target.closest("#apply-color-btn") &&
+    !e.target.closest("#apply-bg-btn")
   ) {
     colorPopup.classList.add("hidden");
+    customColorPopup.classList.add("hidden");
   }
 });
 
@@ -830,6 +1053,8 @@ function loadCurrentTab() {
   const tab = state.tabs[state.currentTab];
 
   if (!tab) return;
+
+  updateAppTitle();
 
   quill.setContents(tab.content || { ops: [] });
 
@@ -1062,6 +1287,8 @@ function renderTabs() {
       title.innerText = newTitle;
 
       title.title = newTitle;
+
+      updateAppTitle();
 
       await saveState();
     });
@@ -1840,10 +2067,28 @@ function scheduleSaveState() {
 // APP VERSION TITLE
 // =====================================
 
-async function updateAppTitle() {
-  const version = await window.appAPI.getVersion();
+let cachedAppVersion = "";
 
-  document.title = `Floating Notes Pro - v${version}`;
+async function updateAppTitle() {
+  if (!cachedAppVersion) {
+    try {
+      cachedAppVersion = await window.appAPI.getVersion();
+    } catch (e) {
+      cachedAppVersion = "";
+    }
+  }
+
+  const currentTab = state.tabs && state.tabs[state.currentTab];
+  const tabTitle = currentTab ? currentTab.title : "";
+  const versionStr = cachedAppVersion ? ` - v${cachedAppVersion}` : "";
+  const fullTitle = tabTitle
+    ? `${tabTitle} - Floating Notes Pro${versionStr}`
+    : `Floating Notes Pro${versionStr}`;
+
+  document.title = fullTitle;
+  if (window.appAPI && typeof window.appAPI.setWindowTitle === "function") {
+    await window.appAPI.setWindowTitle(fullTitle);
+  }
 }
 
 updateAppTitle();

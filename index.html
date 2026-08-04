@@ -3,7 +3,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Floating Notes Pro - v2.0.5</title>
+    <title>Floating Notes Pro - v2.2.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,32 +17,53 @@
 
   <body class="dark">
     <div id="app">
+      <div id="titlebar" data-tauri-drag-region>
+        <div class="titlebar-brand" data-tauri-drag-region>
+          <img src="assets/icon.ico" class="titlebar-icon" alt="" data-tauri-drag-region />
+          <span class="titlebar-title" data-tauri-drag-region>Floating Notes Pro</span>
+        </div>
+
+        <div class="titlebar-right">
+          <div id="actions">
+            <input type="text" id="search" placeholder="Pesquisar..." />
+            <button id="export-btn" title="Baixar nota">
+              <i class="fa-solid fa-download"></i>
+            </button>
+            <button id="import-btn" title="Carregar nota">
+              <i class="fa-solid fa-upload"></i>
+            </button>
+            <button id="replace-btn" title="Localizar e substituir">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            <button id="pin-btn" class="pin-btn" title="Fixar no topo (Ctrl+Alt+P)">
+              <i class="fa-solid fa-thumbtack"></i>
+            </button>
+            <button id="spell-toggle-btn" class="spell-toggle-btn" title="Ativar corretor ortográfico (pt-BR)">
+              <i class="fa-solid fa-spell-check"></i>
+            </button>
+            <button id="theme-btn" class="theme-toggle" title="Tema">
+              <i class="fa-solid fa-moon theme-icon"></i>
+            </button>
+          </div>
+
+          <div class="window-controls">
+            <button id="win-minimize" class="win-btn" title="Minimizar">
+              <i class="fa-solid fa-minus"></i>
+            </button>
+            <button id="win-maximize" class="win-btn" title="Maximizar / Restaurar">
+              <i class="fa-regular fa-square"></i>
+            </button>
+            <button id="win-close" class="win-btn win-close-btn" title="Fechar">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div id="topbar">
         <div id="tabs-wrapper">
           <div id="tabs"></div>
           <button id="add-tab" title="Adicionar aba">+</button>
-        </div>
-
-        <div id="actions">
-          <input type="text" id="search" placeholder="Pesquisar..." />
-          <button id="export-btn" title="Baixar nota">
-            <i class="fa-solid fa-download"></i>
-          </button>
-          <button id="import-btn" title="Carregar nota">
-            <i class="fa-solid fa-upload"></i>
-          </button>
-          <button id="replace-btn" title="Localizar e substituir">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </button>
-          <button id="pin-btn" class="pin-btn" title="Fixar no topo (Ctrl+Alt+P)">
-            <i class="fa-solid fa-thumbtack"></i>
-          </button>
-          <button id="spell-toggle-btn" class="spell-toggle-btn" title="Ativar corretor ortográfico (pt-BR)">
-            <i class="fa-solid fa-spell-check"></i>
-          </button>
-          <button id="theme-btn" class="theme-toggle" title="Tema">
-            <span class="theme-icon">🌙</span>
-          </button>
         </div>
       </div>
 

@@ -35,20 +35,44 @@
   window.appAPI = {
     async loadData() {
       const invoke = getInvoke();
+      let res = null;
       if (invoke) {
-        return await invoke("load_data");
+        try {
+          res = await invoke("load_data");
+        } catch (e) {
+          console.error("Erro ao carregar dados do Tauri:", e);
+        }
       }
-      // Fallback para desenvolvimento fora do Tauri
-      const saved = localStorage.getItem("floatingNotesData");
-      return saved ? JSON.parse(saved) : null;
+      if (res && Array.isArray(res.tabs) && res.tabs.length > 0) {
+        return res;
+      }
+      // Backup secundário no localStorage
+      try {
+        const saved = localStorage.getItem("floatingNotesData");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && Array.isArray(parsed.tabs) && parsed.tabs.length > 0) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.error("Erro ao carregar do localStorage:", e);
+      }
+      return res || null;
     },
 
     async saveData(data) {
+      // Salva sempre no localStorage como espelho de segurança imediato
+      try {
+        localStorage.setItem("floatingNotesData", JSON.stringify(data));
+      } catch (e) {
+        console.error("Erro ao salvar backup no localStorage:", e);
+      }
+
       const invoke = getInvoke();
       if (invoke) {
         return await invoke("save_data", { data });
       }
-      localStorage.setItem("floatingNotesData", JSON.stringify(data));
       return true;
     },
 
@@ -170,6 +194,34 @@
       const invoke = getInvoke();
       if (invoke) {
         return await invoke("restart_app");
+      }
+    },
+
+    minimizeWindow() {
+      const invoke = getInvoke();
+      if (invoke) {
+        invoke("minimize_window");
+      }
+    },
+
+    maximizeWindow() {
+      const invoke = getInvoke();
+      if (invoke) {
+        invoke("maximize_window");
+      }
+    },
+
+    closeWindow() {
+      const invoke = getInvoke();
+      if (invoke) {
+        invoke("close_window");
+      }
+    },
+
+    startDrag() {
+      const invoke = getInvoke();
+      if (invoke) {
+        invoke("start_drag");
       }
     },
   };

@@ -1,6 +1,6 @@
 {
   "name": "floating-notes-pro-tauri",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Floating Notes Desktop (Tauri)",
   "author": "Kaio H. Diniz",
   "scripts": {

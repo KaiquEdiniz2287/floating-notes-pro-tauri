@@ -6,13 +6,31 @@ use tauri::{Emitter, Manager};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 use tauri_plugin_window_state::{StateFlags, WindowExt};
 
+fn get_backup_file(app: &tauri::AppHandle) -> PathBuf {
+    let mut path = app.path().app_data_dir().unwrap_or_default();
+    std::fs::create_dir_all(&path).ok();
+    path.push("floating-notes-data.json.bak");
+    path
+}
+
 #[tauri::command]
 fn save_data(app: tauri::AppHandle, data: Value) -> Result<(), String> {
     let path = get_data_file(&app);
+    let backup_path = get_backup_file(&app);
+    let tmp_path = path.with_extension("json.tmp");
 
     let json = serde_json::to_string_pretty(&data).map_err(|e| e.to_string())?;
 
-    fs::write(path, json).map_err(|e| e.to_string())?;
+    // 1. Escreve primeiro em um arquivo temporário (.tmp)
+    fs::write(&tmp_path, &json).map_err(|e| e.to_string())?;
+
+    // 2. Se o arquivo principal existe, atualiza o backup (.bak) antes de substituir
+    if path.exists() {
+        let _ = fs::copy(&path, &backup_path);
+    }
+
+    // 3. Renomeia atomicamente o arquivo temporário para o arquivo principal
+    fs::rename(&tmp_path, &path).map_err(|e| e.to_string())?;
 
     Ok(())
 }
@@ -20,16 +38,37 @@ fn save_data(app: tauri::AppHandle, data: Value) -> Result<(), String> {
 #[tauri::command]
 fn load_data(app: tauri::AppHandle) -> Result<Value, String> {
     let path = get_data_file(&app);
+    let backup_path = get_backup_file(&app);
 
-    if !path.exists() {
-        return Ok(serde_json::json!(null));
+    // Tenta ler o arquivo principal
+    if path.exists() {
+        if let Ok(content) = fs::read_to_string(&path) {
+            if !content.trim().is_empty() {
+                if let Ok(value) = serde_json::from_str::<Value>(&content) {
+                    if !value.is_null() {
+                        return Ok(value);
+                    }
+                }
+            }
+        }
     }
 
-    let content = fs::read_to_string(path).map_err(|e| e.to_string())?;
+    // Se o arquivo principal falhou ou está corrompido/vazio, tenta restaurar do backup (.bak)
+    if backup_path.exists() {
+        if let Ok(content) = fs::read_to_string(&backup_path) {
+            if !content.trim().is_empty() {
+                if let Ok(value) = serde_json::from_str::<Value>(&content) {
+                    if !value.is_null() {
+                        // Restaura o arquivo principal com os dados do backup
+                        let _ = fs::copy(&backup_path, &path);
+                        return Ok(value);
+                    }
+                }
+            }
+        }
+    }
 
-    let value = serde_json::from_str::<Value>(&content).map_err(|e| e.to_string())?;
-
-    Ok(value)
+    Ok(serde_json::json!(null))
 }
 
 #[tauri::command]
@@ -186,6 +225,38 @@ fn restart_app(app: tauri::AppHandle) {
     app.restart();
 }
 
+#[tauri::command]
+fn minimize_window(app: tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.minimize();
+    }
+}
+
+#[tauri::command]
+fn maximize_window(app: tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window("main") {
+        if window.is_maximized().unwrap_or(false) {
+            let _ = window.unmaximize();
+        } else {
+            let _ = window.maximize();
+        }
+    }
+}
+
+#[tauri::command]
+fn close_window(app: tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.close();
+    }
+}
+
+#[tauri::command]
+fn start_drag(app: tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.start_dragging();
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -213,9 +284,11 @@ pub fn run() {
             }
 
             // Restaurar posição/tamanho da janela ANTES de exibi-la, eliminando o "flash"
-            // O plugin restaura posição; só depois mostramos a janela
+            // O plugin restaura posição; set_decorations(false) garante que o estado antigo
+            // com a barra nativa não seja restaurado pelo tauri_plugin_window_state
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.restore_state(StateFlags::all());
+                let _ = window.set_decorations(false);
                 let _ = window.set_always_on_top(false);
                 let _ = window.show();
                 let _ = window.set_focus();
@@ -279,7 +352,11 @@ pub fn run() {
             toggle_always_on_top,
             is_always_on_top,
             check_for_updates,
-            restart_app
+            restart_app,
+            minimize_window,
+            maximize_window,
+            close_window,
+            start_drag
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

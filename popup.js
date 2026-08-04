@@ -938,8 +938,10 @@ function transformText(type) {
 }
 
 // ==========================
-// LOAD
+// LOAD & PERSISTENCE GUARD
 // ==========================
+
+let isStateLoaded = false;
 
 async function loadState() {
   try {
@@ -961,7 +963,7 @@ async function loadState() {
       };
     }
   } catch (err) {
-    console.error(err);
+    console.error("Erro no loadState:", err);
   }
 
   // GARANTE TABS
@@ -1009,6 +1011,9 @@ async function loadState() {
   updateColorUI();
 
   initTabsSortable();
+
+  // Marca como totalmente carregado para liberar salvamentos futuros
+  isStateLoaded = true;
 }
 
 // ==========================
@@ -1016,10 +1021,12 @@ async function loadState() {
 // ==========================
 
 async function saveState() {
+  if (!isStateLoaded) return;
   try {
+    saveCurrentTab();
     await window.appAPI.saveData(state);
   } catch (err) {
-    console.error(err);
+    console.error("Erro no saveState:", err);
   }
 }
 // =====================================
@@ -1396,7 +1403,16 @@ quill.on("text-change", () => {
 const themeIcon = document.querySelector(".theme-icon");
 
 function updateThemeIcon() {
-  themeIcon.textContent = state.theme === "dark" ? "☀" : "🌙";
+  if (!themeIcon) return;
+  if (state.theme === "dark") {
+    // Mostra sol (para indicar que pode mudar para claro)
+    themeIcon.classList.remove("fa-moon");
+    themeIcon.classList.add("fa-sun");
+  } else {
+    // Mostra lua (para indicar que pode mudar para escuro)
+    themeIcon.classList.remove("fa-sun");
+    themeIcon.classList.add("fa-moon");
+  }
 }
 
 themeBtn.addEventListener("click", async () => {
@@ -2440,6 +2456,43 @@ if (tabsWrapperEl) {
 window.appAPI?.onNewTabShortcut(() => {
   addTabBtn.click();
 });
+
+// =====================================
+// WINDOW CONTROLS (MINIMIZAR, MAXIMIZAR, FECHAR, ARRASTAR)
+// =====================================
+
+const titlebarContainer = document.getElementById("titlebar");
+if (titlebarContainer) {
+  titlebarContainer.addEventListener("mousedown", (e) => {
+    // Se o usuário clicou em botão, input ou nos controles da janela, ignora o arraste
+    if (e.target.closest("button") || e.target.closest("input") || e.target.closest(".window-controls")) {
+      return;
+    }
+    window.appAPI?.startDrag?.();
+  });
+}
+
+const winMinimizeBtn = document.getElementById("win-minimize");
+const winMaximizeBtn = document.getElementById("win-maximize");
+const winCloseBtn = document.getElementById("win-close");
+
+if (winMinimizeBtn) {
+  winMinimizeBtn.addEventListener("click", () => {
+    window.appAPI?.minimizeWindow?.();
+  });
+}
+
+if (winMaximizeBtn) {
+  winMaximizeBtn.addEventListener("click", () => {
+    window.appAPI?.maximizeWindow?.();
+  });
+}
+
+if (winCloseBtn) {
+  winCloseBtn.addEventListener("click", () => {
+    window.appAPI?.closeWindow?.();
+  });
+}
 
 // ==========================
 // INIT

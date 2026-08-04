@@ -3,7 +3,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Floating Notes Pro - v2.0.4</title>
+    <title>Floating Notes Pro - v2.0.5</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -36,6 +36,9 @@
           </button>
           <button id="pin-btn" class="pin-btn" title="Fixar no topo (Ctrl+Alt+P)">
             <i class="fa-solid fa-thumbtack"></i>
+          </button>
+          <button id="spell-toggle-btn" class="spell-toggle-btn" title="Ativar corretor ortográfico (pt-BR)">
+            <i class="fa-solid fa-spell-check"></i>
           </button>
           <button id="theme-btn" class="theme-toggle" title="Tema">
             <span class="theme-icon">🌙</span>
@@ -181,6 +184,11 @@
       </div>
     </div>
 
+    <!-- SPELL CHECKER CONTEXT MENU -->
+    <div id="spell-context-menu" class="spell-context-menu hidden">
+      <div class="spell-menu-list"></div>
+    </div>
+
     <!-- ABRIR ARQUIVO DEPOIS DO DOWNLOAD -->
     <div id="download-toast" class="download-toast hidden">
       <div class="download-toast-icon">
@@ -199,10 +207,12 @@
 
     <input type="file" id="import-file" hidden />
     <script src="quill/quill.js"></script>
+    <script src="js/spellblot.js"></script>
     <script src="sortable/Sortable.min.js"></script>
     <script src="html2pdf.bundle.min.js"></script>
     <script src="js/tauri-api.js"></script>
     <script src="js/version.js"></script>
     <script src="popup.js"></script>
+    <script src="js/spellcheck.js"></script>
   </body>
 </html>

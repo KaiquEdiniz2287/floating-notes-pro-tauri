@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Floating Notes Pro",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "identifier": "com.kaio.floatingnotes",
   "build": {
     "frontendDist": "../dist",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Floating Notes Pro - v2.0.4",
+        "title": "Floating Notes Pro - v2.0.5",
         "width": 1100,
         "height": 750,
         "minWidth": 700,

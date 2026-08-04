@@ -1039,10 +1039,30 @@ quill.on("selection-change", (range) => {
 // SAVE CURRENT TAB
 // ==========================
 
+function getCleanContents() {
+  const delta = quill.getContents();
+  if (!delta || !Array.isArray(delta.ops)) return delta;
+
+  const cleanOps = delta.ops.map((op) => {
+    if (op.attributes && op.attributes["spell-error"]) {
+      const newAttr = { ...op.attributes };
+      delete newAttr["spell-error"];
+      if (Object.keys(newAttr).length === 0) {
+        const { attributes, ...rest } = op;
+        return rest;
+      }
+      return { ...op, attributes: newAttr };
+    }
+    return op;
+  });
+
+  return { ops: cleanOps };
+}
+
 function saveCurrentTab() {
   if (!state.tabs[state.currentTab]) return;
 
-  state.tabs[state.currentTab].content = quill.getContents();
+  state.tabs[state.currentTab].content = getCleanContents();
 }
 
 // ==========================
@@ -1074,6 +1094,9 @@ function loadCurrentTab() {
       index: finalPos,
       length: 0,
     });
+
+    // 🔤 RE-VERIFICA ORTOGRAFIA NA ABA CARREGADA
+    document.dispatchEvent(new CustomEvent("spellcheck-recheck"));
   }, 0);
 }
 

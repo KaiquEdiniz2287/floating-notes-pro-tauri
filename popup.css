@@ -1533,3 +1533,249 @@ button {
 }
 /* ---------------------------------- */
 /* ---------------------------------- */
+
+/* ======================================
+   CORRETOR ORTOGRÁFICO
+   ====================================== */
+
+/* ── Sublinhado vermelho ondulado ── */
+.ql-spell-error {
+  text-decoration: underline wavy #ef4444;
+  text-decoration-skip-ink: none;
+  cursor: pointer;
+  border-radius: 1px;
+  transition: background 0.15s;
+}
+
+.ql-spell-error:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* ── Botão toggle na toolbar ── */
+.spell-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.18s ease;
+  position: relative;
+}
+
+.spell-toggle-btn:hover {
+  background: rgba(148, 163, 184, 0.15);
+  color: #e2e8f0;
+}
+
+.spell-toggle-btn.active {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.3);
+}
+
+.spell-toggle-btn.active:hover {
+  background: rgba(74, 222, 128, 0.25);
+}
+
+/* Estado de loading (girar ícone) */
+.spell-toggle-btn.loading i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Tema light */
+.light .spell-toggle-btn {
+  color: #64748b;
+}
+.light .spell-toggle-btn:hover {
+  background: rgba(100, 116, 139, 0.12);
+  color: #1e293b;
+}
+.light .spell-toggle-btn.active {
+  background: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+  box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.25);
+}
+
+/* ── Menu de contexto ── */
+.spell-context-menu {
+  position: fixed;
+  z-index: 99999;
+  min-width: 200px;
+  max-width: 260px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.4),
+    0 20px 40px -4px rgba(0, 0, 0, 0.5),
+    0 0 0 0.5px rgba(255, 255, 255, 0.04) inset;
+  animation: spell-menu-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top left;
+}
+
+@keyframes spell-menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.spell-menu-list {
+  padding: 6px 4px;
+}
+
+.spell-menu-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  padding: 4px 10px 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spell-menu-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #475569;
+  padding: 2px 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.spell-menu-no-suggestions {
+  font-size: 12px;
+  color: #475569;
+  padding: 6px 10px;
+  font-style: italic;
+}
+
+.spell-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-family: "Inter", system-ui, sans-serif;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spell-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Sugestões em azul */
+.spell-suggestion {
+  font-weight: 500;
+  color: #93c5fd;
+}
+
+.spell-suggestion:hover {
+  background: rgba(147, 197, 253, 0.12);
+  color: #bfdbfe;
+}
+
+/* Ações (ignorar, adicionar) */
+.spell-menu-action {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.spell-menu-action:hover {
+  background: rgba(148, 163, 184, 0.1);
+  color: #e2e8f0;
+}
+
+.spell-menu-action i {
+  font-size: 11px;
+  width: 14px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.spell-menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 4px 8px;
+}
+
+/* Tema light */
+.light .spell-context-menu {
+  background: rgba(248, 250, 252, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 20px 40px -4px rgba(0, 0, 0, 0.15);
+}
+
+.light .spell-menu-header {
+  color: #64748b;
+}
+
+.light .spell-menu-label {
+  color: #94a3b8;
+}
+
+.light .spell-menu-no-suggestions {
+  color: #94a3b8;
+}
+
+.light .spell-menu-item {
+  color: #1e293b;
+}
+
+.light .spell-menu-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.light .spell-suggestion {
+  color: #2563eb;
+}
+
+.light .spell-suggestion:hover {
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+}
+
+.light .spell-menu-action {
+  color: #64748b;
+}
+
+.light .spell-menu-action:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+}
+
+.light .spell-menu-divider {
+  background: rgba(0, 0, 0, 0.08);
+}

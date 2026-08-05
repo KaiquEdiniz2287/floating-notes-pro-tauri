@@ -2464,11 +2464,28 @@ window.appAPI?.onNewTabShortcut(() => {
 const titlebarContainer = document.getElementById("titlebar");
 if (titlebarContainer) {
   titlebarContainer.addEventListener("mousedown", (e) => {
-    // Se o usuário clicou em botão, input ou nos controles da janela, ignora o arraste
-    if (e.target.closest("button") || e.target.closest("input") || e.target.closest(".window-controls")) {
+    // Se o usuário clicou em botão, input, controles da janela ou se é o 2º clique de um duplo clique (e.detail > 1), ignora o startDrag
+    if (
+      e.target.closest("button") ||
+      e.target.closest("input") ||
+      e.target.closest(".window-controls") ||
+      e.detail > 1
+    ) {
       return;
     }
     window.appAPI?.startDrag?.();
+  });
+
+  // Duplo clique na Title Bar alterna Maximizar / Restaurar sem conflito com o arraste
+  titlebarContainer.addEventListener("dblclick", (e) => {
+    if (
+      e.target.closest("button") ||
+      e.target.closest("input") ||
+      e.target.closest(".window-controls")
+    ) {
+      return;
+    }
+    window.appAPI?.maximizeWindow?.();
   });
 }
 
